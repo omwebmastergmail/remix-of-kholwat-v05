@@ -22,9 +22,26 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const rows = useMemo(
-    () => trx.filter((t) => t.tipe === "pemasukan").sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
+    () =>
+      trx
+        .filter((t) => t.tipe === "pemasukan")
+        .sort((a, b) => {
+          // pending dulu, lalu tanggal terbaru
+          if (a.status === "pending" && b.status !== "pending") return -1;
+          if (b.status === "pending" && a.status !== "pending") return 1;
+          return b.tanggal.localeCompare(a.tanggal);
+        }),
     [trx],
   );
+
+  const pendingCount = rows.filter((r) => r.status === "pending").length;
+
+  const setStatus = async (id: string, status: "diterima" | "ditolak") => {
+    const { error } = await supabase.from("transaksi").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(status === "diterima" ? "Donasi diverifikasi" : "Donasi ditolak");
+    onChanged();
+  };
 
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
