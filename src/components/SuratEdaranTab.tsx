@@ -156,7 +156,41 @@ export function SuratEdaranTab() {
         </p>
       </section>
 
-      {/* Kontak Panitia */}
+      {/* Informasi Pembayaran */}
+      <section className="rounded-2xl border bg-card p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Landmark className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Informasi Pembayaran</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Silakan transfer kontribusi melalui rekening berikut:
+        </p>
+        <div className="mt-4 rounded-xl border bg-accent/40 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bank BRI</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-primary">1234567890</p>
+              <p className="mt-1 text-sm">a.n. <span className="font-semibold">Rudianto</span></p>
+            </div>
+            <CopyButton value="1234567890" label="Salin No. Rekening" />
+          </div>
+        </div>
+        <div className="mt-4 rounded-lg bg-muted/60 p-4">
+          <p className="text-sm text-muted-foreground">
+            Setelah transfer, mohon konfirmasi pembayaran melalui form berikut:
+          </p>
+          <a
+            href="https://www.infohbhmdti.my.id/donasi"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+          >
+            <ExternalLink className="h-4 w-4" /> Isi Form Konfirmasi Donasi
+          </a>
+        </div>
+      </section>
+
+
       <section className="rounded-2xl border bg-card p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
           <Phone className="h-5 w-5 text-primary" /> Hubungi Panitia
