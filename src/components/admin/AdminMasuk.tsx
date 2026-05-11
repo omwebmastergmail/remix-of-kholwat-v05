@@ -48,7 +48,14 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Donasi Masuk</h2>
-          <p className="text-sm text-muted-foreground">Daftar donasi per donatur</p>
+          <p className="text-sm text-muted-foreground">
+            Daftar donasi per donatur
+            {pendingCount > 0 && (
+              <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                {pendingCount} menunggu verifikasi
+              </span>
+            )}
+          </p>
         </div>
         <Button size="sm" onClick={() => { setEdit(null); setOpen(true); }}>
           <Plus className="mr-1 h-4 w-4" /> Tambah
