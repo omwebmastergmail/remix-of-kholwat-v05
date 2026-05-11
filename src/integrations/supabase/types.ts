@@ -14,16 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      seksi: {
+        Row: {
+          created_at: string
+          id: string
+          nama: string
+          rencana_anggaran: number
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nama: string
+          rencana_anggaran?: number
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nama?: string
+          rencana_anggaran?: number
+          urutan?: number
+        }
+        Relationships: []
+      }
+      sumber_donasi: {
+        Row: {
+          created_at: string
+          id: string
+          nama: string
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nama: string
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nama?: string
+          urutan?: number
+        }
+        Relationships: []
+      }
+      transaksi: {
+        Row: {
+          created_at: string
+          id: string
+          keterangan: string | null
+          nominal: number
+          seksi_id: string | null
+          sumber_donasi_id: string | null
+          tanggal: string
+          tipe: Database["public"]["Enums"]["transaksi_tipe"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          keterangan?: string | null
+          nominal?: number
+          seksi_id?: string | null
+          sumber_donasi_id?: string | null
+          tanggal?: string
+          tipe?: Database["public"]["Enums"]["transaksi_tipe"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          keterangan?: string | null
+          nominal?: number
+          seksi_id?: string | null
+          sumber_donasi_id?: string | null
+          tanggal?: string
+          tipe?: Database["public"]["Enums"]["transaksi_tipe"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaksi_seksi_id_fkey"
+            columns: ["seksi_id"]
+            isOneToOne: false
+            referencedRelation: "seksi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaksi_sumber_donasi_id_fkey"
+            columns: ["sumber_donasi_id"]
+            isOneToOne: false
+            referencedRelation: "sumber_donasi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      transaksi_tipe: "pemasukan" | "pengeluaran"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +270,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      transaksi_tipe: ["pemasukan", "pengeluaran"],
+    },
   },
 } as const
