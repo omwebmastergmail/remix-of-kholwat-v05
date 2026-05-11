@@ -169,7 +169,7 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Sumber Donasi *</Label>
+            <Label>Sumber Donasi dari Cabang *</Label>
             <Select value={sumberId} onValueChange={setSumberId}>
               <SelectTrigger><SelectValue placeholder="Pilih sumber donasi" /></SelectTrigger>
               <SelectContent>
