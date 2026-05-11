@@ -110,9 +110,21 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
                                 Tidak ada
                               </div>
                             )}
-                            <Button size="sm" variant="outline" className="mt-2" onClick={(e) => { e.stopPropagation(); setEdit(r); setOpen(true); }}>
-                              Edit
-                            </Button>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setEdit(r); setOpen(true); }}>
+                                Edit
+                              </Button>
+                              {r.status === "pending" && (
+                                <>
+                                  <Button size="sm" onClick={(e) => { e.stopPropagation(); setStatus(r.id, "diterima"); }}>
+                                    <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Verifikasi
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); setStatus(r.id, "ditolak"); }}>
+                                    <XCircle className="mr-1 h-3.5 w-3.5" /> Tolak
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </TableCell>
