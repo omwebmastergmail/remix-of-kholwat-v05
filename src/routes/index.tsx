@@ -61,15 +61,17 @@ function Dashboard() {
       .reduce((sum: number, t: any) => sum + Number(t.nominal), 0),
   }));
 
-  const trxRows: TrxRow[] = trx.map((t: any) => ({
-    id: t.id,
-    tanggal: t.tanggal,
-    tipe: t.tipe,
-    nominal: Number(t.nominal),
-    keterangan: t.keterangan,
-    sumber: t.sumber_donasi?.nama ?? null,
-    seksi: t.seksi?.nama ?? null,
-  }));
+  const trxRows: TrxRow[] = trx
+    .filter((t: any) => t.status === "diterima")
+    .map((t: any) => ({
+      id: t.id,
+      tanggal: t.tanggal,
+      tipe: t.tipe,
+      nominal: Number(t.nominal),
+      keterangan: t.keterangan,
+      sumber: t.sumber_donasi?.nama ?? null,
+      seksi: t.seksi?.nama ?? null,
+    }));
 
   const target = seksiRows.reduce((s, r) => s + r.rencana, 0);
   const realisasi = trxRows.filter((t) => t.tipe === "pemasukan").reduce((s, t) => s + t.nominal, 0);
