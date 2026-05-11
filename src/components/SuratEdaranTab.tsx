@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText } from "lucide-react";
+import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText, Download } from "lucide-react";
 
 function useCountdown(target: Date) {
   const [now, setNow] = useState(() => new Date());
@@ -174,6 +174,14 @@ export function SuratEdaranTab() {
         <p className="mt-1 text-sm font-semibold">Pengurus Pusat</p>
         <p className="text-sm font-semibold">Yayasan Majelis Dzikir Tasbih Indonesia</p>
         <p className="mt-4 text-xs text-muted-foreground">No. Surat Edaran: 004/SE/MDTI.0/V/2026</p>
+        <a
+          href="/surat-edaran-kholwat-2026.pdf"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+        >
+          <Download className="h-4 w-4" /> Unduh PDF Surat Edaran
+        </a>
       </section>
     </div>
   );
