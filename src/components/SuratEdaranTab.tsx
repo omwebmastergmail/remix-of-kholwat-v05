@@ -44,7 +44,7 @@ export function SuratEdaranTab() {
           <div className="h-px flex-1 bg-white/30" />
         </div>
         <p className="mx-auto max-w-2xl text-sm italic opacity-95 sm:text-base">
-          "Sesungguhnya yang Engkau cari ada di dalam dirimu, maka tinggalkanlah segala sesuatu selain Allah."
+          "Bersama Kita Bisa, Bersatu Kita Mampu."
         </p>
         <p className="mt-2 text-xs opacity-80">— Nasihat Para Salik</p>
       </section>
