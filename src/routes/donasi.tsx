@@ -125,7 +125,7 @@ function DonasiFormPage() {
               <p className="mt-1 text-xl font-bold tabular-nums">{done.kode}</p>
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setKeterangan(""); setBukti(null); }} variant="outline">
+              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setPembayarKolektif(""); setKeterangan(""); setBukti(null); }} variant="outline">
                 Kirim Lagi
               </Button>
               <Button onClick={() => navigate({ to: "/" })}>Kembali ke Beranda</Button>
