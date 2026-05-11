@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NominalInput } from "@/components/admin/NominalInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,7 +25,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
   const [tipe, setTipe] = useState<"pemasukan" | "pengeluaran">(defaultTipe ?? "pemasukan");
   const [sumberId, setSumberId] = useState("");
   const [seksiId, setSeksiId] = useState("");
-  const [nominal, setNominal] = useState("");
+  const [nominal, setNominal] = useState(0);
   const [keterangan, setKeterangan] = useState("");
   const [donorNama, setDonorNama] = useState("");
   const [kode, setKode] = useState("");
@@ -40,7 +41,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
       setTipe(initial.tipe);
       setSumberId(initial.sumber_donasi_id ?? "");
       setSeksiId(initial.seksi_id ?? "");
-      setNominal(String(initial.nominal));
+      setNominal(Number(initial.nominal));
       setKeterangan(initial.keterangan ?? "");
       setDonorNama(initial.donor_nama ?? "");
       setKode(initial.kode ?? "");
@@ -57,7 +58,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
   }, [open, initial, defaultTipe]);
 
   const submit = async () => {
-    if (!nominal || Number(nominal) <= 0) return toast.error("Nominal wajib diisi");
+    if (!nominal || nominal <= 0) return toast.error("Nominal wajib diisi");
     setBusy(true);
     try {
       let buktiUrl = existingUrl;
@@ -72,7 +73,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
       const payload = {
         tanggal,
         tipe,
-        nominal: Number(nominal),
+        nominal: nominal,
         keterangan: keterangan || null,
         sumber_donasi_id: tipe === "pemasukan" ? sumberId || null : null,
         seksi_id: tipe === "pengeluaran" ? seksiId || null : null,
@@ -149,7 +150,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
           )}
           <div>
             <Label>Nominal (Rp)</Label>
-            <Input type="number" min="0" value={nominal} onChange={(e) => setNominal(e.target.value)} />
+            <NominalInput value={nominal} onChange={setNominal} placeholder="0" />
           </div>
           <div>
             <Label>Status</Label>
