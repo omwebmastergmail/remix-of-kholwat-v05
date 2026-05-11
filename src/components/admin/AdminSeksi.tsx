@@ -1,10 +1,13 @@
 import { Fragment as FragmentRow, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, FileText, Pencil } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -20,10 +23,13 @@ interface Props {
   onChanged: () => void;
 }
 
+type FormState = { id?: string; nama: string; rencana_anggaran: number; urutan: number };
+const emptyForm: FormState = { nama: "", rencana_anggaran: 0, urutan: 0 };
+
 export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [edit, setEdit] = useState<Seksi | null>(null);
-  const [val, setVal] = useState(0);
+  const [form, setForm] = useState<FormState | null>(null);
+  const [del, setDel] = useState<Seksi | null>(null);
   const [busy, setBusy] = useState(false);
 
   const rows = useMemo(() => {
@@ -32,7 +38,8 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
         const realisasi = trx
           .filter((t) => t.seksi_id === s.id && t.tipe === "pengeluaran")
           .reduce((a, t) => a + Number(t.nominal), 0);
-        return { ...s, realisasi };
+        const jumlahTrx = trx.filter((t) => t.seksi_id === s.id).length;
+        return { ...s, realisasi, jumlahTrx };
       })
       .sort((a, b) => a.urutan - b.urutan);
   }, [seksi, trx]);
@@ -40,14 +47,32 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
   const totalAnggaran = rows.reduce((a, r) => a + Number(r.rencana_anggaran), 0);
   const totalRealisasi = rows.reduce((a, r) => a + r.realisasi, 0);
 
-  const saveAnggaran = async () => {
-    if (!edit) return;
+  const openAdd = () => setForm({ ...emptyForm, urutan: (seksi[seksi.length - 1]?.urutan ?? 0) + 1 });
+  const openEdit = (s: Seksi) => setForm({ id: s.id, nama: s.nama, rencana_anggaran: Number(s.rencana_anggaran), urutan: s.urutan });
+
+  const save = async () => {
+    if (!form) return;
+    if (!form.nama.trim()) return toast.error("Nama seksi wajib diisi");
     setBusy(true);
-    const { error } = await supabase.from("seksi").update({ rencana_anggaran: val }).eq("id", edit.id);
+    const payload = { nama: form.nama.trim(), rencana_anggaran: form.rencana_anggaran, urutan: form.urutan };
+    const { error } = form.id
+      ? await supabase.from("seksi").update(payload).eq("id", form.id)
+      : await supabase.from("seksi").insert(payload);
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Anggaran diperbarui");
-    setEdit(null);
+    toast.success(form.id ? "Seksi diperbarui" : "Seksi ditambahkan");
+    setForm(null);
+    onChanged();
+  };
+
+  const confirmDelete = async () => {
+    if (!del) return;
+    setBusy(true);
+    const { error } = await supabase.from("seksi").delete().eq("id", del.id);
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Seksi dihapus");
+    setDel(null);
     onChanged();
   };
 
@@ -62,12 +87,17 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
             <div><span className="text-muted-foreground">Realisasi </span><b className="text-red-600">{formatRupiah(totalRealisasi)}</b></div>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="text-red-600" onClick={() => exportPdf("Anggaran per Seksi", "seksi", ["No", "Seksi", "Anggaran", "Realisasi", "%"], rows.map((r, i) => [
-          i + 1, r.nama, formatRupiah(r.rencana_anggaran), formatRupiah(r.realisasi),
-          r.rencana_anggaran > 0 ? `${Math.round((r.realisasi / r.rencana_anggaran) * 100)}%` : "-",
-        ]))}>
-          <FileText className="mr-1 h-4 w-4" /> PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="text-red-600" onClick={() => exportPdf("Anggaran per Seksi", "seksi", ["No", "Seksi", "Anggaran", "Realisasi", "%"], rows.map((r, i) => [
+            i + 1, r.nama, formatRupiah(r.rencana_anggaran), formatRupiah(r.realisasi),
+            r.rencana_anggaran > 0 ? `${Math.round((r.realisasi / r.rencana_anggaran) * 100)}%` : "-",
+          ]))}>
+            <FileText className="mr-1 h-4 w-4" /> PDF
+          </Button>
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="mr-1 h-4 w-4" /> Tambah Seksi
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-xl border">
@@ -79,10 +109,17 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
               <TableHead className="text-right text-primary-foreground">Anggaran</TableHead>
               <TableHead className="text-right text-primary-foreground">Realisasi</TableHead>
               <TableHead className="w-20 text-right text-primary-foreground">%</TableHead>
-              <TableHead className="w-12" />
+              <TableHead className="w-24 text-right text-primary-foreground">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  Belum ada seksi. Klik "Tambah Seksi" untuk memulai.
+                </TableCell>
+              </TableRow>
+            )}
             {rows.map((r, i) => {
               const pct = r.rencana_anggaran > 0 ? (r.realisasi / Number(r.rencana_anggaran)) * 100 : 0;
               const pctColor = pct > 100 ? "text-red-600" : pct >= 80 ? "text-amber-600" : "text-emerald-600";
@@ -116,54 +153,99 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
                       {r.rencana_anggaran > 0 ? `${Math.round(pct)}%` : "-"}
                     </TableCell>
                     <TableCell>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-600" onClick={() => { setEdit(r); setVal(Number(r.rencana_anggaran)); }}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-600" onClick={() => openEdit(r)} title="Edit">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-red-600" onClick={() => setDel(r)} title="Hapus">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                  {isOpen && detail.length > 0 && (
+                  {isOpen && (
                     <TableRow className="bg-muted/20">
                       <TableCell colSpan={6}>
-                        <ul className="space-y-1 p-2 text-sm">
-                          {detail.map((d) => (
-                            <li key={d.id} className="flex justify-between gap-3 border-b border-border/50 py-1 last:border-0">
-                              <span className="truncate">{d.keterangan ?? "-"} <span className="text-xs text-muted-foreground">{formatTanggal(d.tanggal)}</span></span>
-                              <span className="shrink-0 tabular-nums text-red-600">-{formatRupiah(d.nominal)}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        {detail.length === 0 ? (
+                          <p className="p-2 text-sm text-muted-foreground">Belum ada transaksi pengeluaran untuk seksi ini.</p>
+                        ) : (
+                          <ul className="space-y-1 p-2 text-sm">
+                            {detail.map((d) => (
+                              <li key={d.id} className="flex justify-between gap-3 border-b border-border/50 py-1 last:border-0">
+                                <span className="truncate">{d.keterangan ?? "-"} <span className="text-xs text-muted-foreground">{formatTanggal(d.tanggal)}</span></span>
+                                <span className="shrink-0 tabular-nums text-red-600">-{formatRupiah(d.nominal)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </TableCell>
                     </TableRow>
                   )}
                 </FragmentRow>
               );
             })}
-            <TableRow className="bg-muted/40 font-semibold">
-              <TableCell colSpan={2}>Total</TableCell>
-              <TableCell className="text-right tabular-nums">{formatRupiah(totalAnggaran)}</TableCell>
-              <TableCell className="text-right tabular-nums">{formatRupiah(totalRealisasi)}</TableCell>
-              <TableCell className="text-right tabular-nums">
-                {totalAnggaran > 0 ? `${Math.round((totalRealisasi / totalAnggaran) * 100)}%` : "-"}
-              </TableCell>
-              <TableCell />
-            </TableRow>
+            {rows.length > 0 && (
+              <TableRow className="bg-muted/40 font-semibold">
+                <TableCell colSpan={2}>Total</TableCell>
+                <TableCell className="text-right tabular-nums">{formatRupiah(totalAnggaran)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatRupiah(totalRealisasi)}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {totalAnggaran > 0 ? `${Math.round((totalRealisasi / totalAnggaran) * 100)}%` : "-"}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
 
-      <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
+      <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Edit Anggaran — {edit?.nama}</DialogTitle></DialogHeader>
-          <div>
-            <Label>Rencana Anggaran (Rp)</Label>
-            <Input type="number" min="0" value={val} onChange={(e) => setVal(Number(e.target.value))} />
-          </div>
+          <DialogHeader><DialogTitle>{form?.id ? `Edit Seksi — ${form.nama}` : "Tambah Seksi"}</DialogTitle></DialogHeader>
+          {form && (
+            <div className="space-y-3">
+              <div>
+                <Label>Nama Seksi</Label>
+                <Input value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} placeholder="Mis. Konsumsi" />
+              </div>
+              <div>
+                <Label>Rencana Anggaran (Rp)</Label>
+                <Input type="number" min="0" value={form.rencana_anggaran} onChange={(e) => setForm({ ...form, rencana_anggaran: Number(e.target.value) })} />
+              </div>
+              <div>
+                <Label>Urutan Tampil</Label>
+                <Input type="number" min="0" value={form.urutan} onChange={(e) => setForm({ ...form, urutan: Number(e.target.value) })} />
+              </div>
+            </div>
+          )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEdit(null)}>Batal</Button>
-            <Button onClick={saveAnggaran} disabled={busy}>{busy ? "..." : "Simpan"}</Button>
+            <Button variant="outline" onClick={() => setForm(null)}>Batal</Button>
+            <Button onClick={save} disabled={busy}>{busy ? "..." : "Simpan"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!del} onOpenChange={(o) => !o && setDel(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus seksi "{del?.nama}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {(() => {
+                const count = del ? trx.filter((t) => t.seksi_id === del.id).length : 0;
+                return count > 0
+                  ? `Seksi ini memiliki ${count} transaksi terkait. Penghapusan akan gagal jika transaksi masih ada — hapus transaksi-nya terlebih dahulu.`
+                  : "Tindakan ini tidak dapat dibatalkan.";
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={busy} className="bg-red-600 hover:bg-red-700">
+              {busy ? "..." : "Hapus"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
