@@ -61,31 +61,43 @@ export type Database = {
       }
       transaksi: {
         Row: {
+          bukti_bayar_url: string | null
           created_at: string
+          donor_nama: string | null
           id: string
           keterangan: string | null
+          kode: string | null
           nominal: number
           seksi_id: string | null
+          status: Database["public"]["Enums"]["transaksi_status"]
           sumber_donasi_id: string | null
           tanggal: string
           tipe: Database["public"]["Enums"]["transaksi_tipe"]
         }
         Insert: {
+          bukti_bayar_url?: string | null
           created_at?: string
+          donor_nama?: string | null
           id?: string
           keterangan?: string | null
+          kode?: string | null
           nominal?: number
           seksi_id?: string | null
+          status?: Database["public"]["Enums"]["transaksi_status"]
           sumber_donasi_id?: string | null
           tanggal?: string
           tipe?: Database["public"]["Enums"]["transaksi_tipe"]
         }
         Update: {
+          bukti_bayar_url?: string | null
           created_at?: string
+          donor_nama?: string | null
           id?: string
           keterangan?: string | null
+          kode?: string | null
           nominal?: number
           seksi_id?: string | null
+          status?: Database["public"]["Enums"]["transaksi_status"]
           sumber_donasi_id?: string | null
           tanggal?: string
           tipe?: Database["public"]["Enums"]["transaksi_tipe"]
@@ -143,6 +155,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      transaksi_status: "pending" | "diterima" | "ditolak"
       transaksi_tipe: "pemasukan" | "pengeluaran"
     }
     CompositeTypes: {
@@ -272,6 +285,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      transaksi_status: ["pending", "diterima", "ditolak"],
       transaksi_tipe: ["pemasukan", "pengeluaran"],
     },
   },

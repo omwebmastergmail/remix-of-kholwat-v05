@@ -1,80 +1,84 @@
+## Tujuan
 
-# Clone Aplikasi: KHOLWAT MDTI 2026
+Membuat halaman `/admin` (tetap terpisah dari halaman publik) menjadi panel manajemen lengkap dengan 5 tab — **Donasi · Seksi · Transaksi · Grafik · Masuk** — yang setara dengan UI referensi `infohbhmdti.my.id`. Halaman publik di `/` tidak diubah pada plan ini.
 
-Membuat dashboard donasi mirip referensi (hbh-mdti.lovable.app), tapi dengan judul **KHOLWAT MDTI 2026** dan subjudul **Majelis Dzikir Tasbih Indonesia**. Tema hijau islami, backend Lovable Cloud. **Daftar Sumber Donasi di-clone persis (47 cabang)** dari referensi; data Seksi & Transaksi di-seed dummy awal.
-
-## Halaman & Layout
-
-Satu halaman utama (`/`) bergaya seperti referensi:
+## Layout Halaman Admin
 
 ```text
-┌──────────────────────────────────────────────────────┐
-│  [icon] KHOLWAT MDTI 2026                  [Login]   │
-│         Majelis Dzikir Tasbih Indonesia              │
-├──────────────────────────────────────────────────────┤
-│  ┌─ TARGET DONASI ─┐   ┌─ REALISASI ────────────┐    │
-│  │  Rp xx.xxx.xxx  │   │  Rp xx.xxx.xxx         │    │
-│  │  (auto Σ seksi) │   │  xx% - Tercapai        │    │
-│  └─────────────────┘   └────────────────────────┘    │
-├──────────────────────────────────────────────────────┤
-│  [Donasi] [Seksi] [Transaksi] [Grafik]               │
-├──────────────────────────────────────────────────────┤
-│  <konten tab aktif>                                  │
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  Header (sama, + tombol Print All & Keluar)  │
+├──────────────────────────────────────────────┤
+│  StatsCards: TARGET DONASI │ REALISASI       │
+├──────────────────────────────────────────────┤
+│  Tabs: Donasi │ Seksi │ Transaksi │ Grafik │ Masuk │
+└──────────────────────────────────────────────┘
 ```
 
-Tab:
-- **Donasi** – tabel "Sumber Dana Donasi" + search box, kolom No / Sumber Donasi / Nominal (sortable). Nominal = SUM transaksi pemasukan per sumber.
-- **Seksi** – tabel daftar seksi: Nama, Rencana Anggaran, Realisasi Pengeluaran, Sisa.
-- **Transaksi** – tabel transaksi: tanggal, sumber, seksi, tipe, nominal, keterangan.
-- **Grafik** – chart realisasi vs target (recharts: bar per seksi + pie sumber donasi).
+## Fase 1 — Skema Database & Storage
 
-Tombol Login di header → `/login` (admin).
+Tambah kolom & tabel baru (lewat migration):
 
-## Backend (Lovable Cloud)
+- `transaksi`:
+  - `donor_nama TEXT` (untuk donasi masuk individual)
+  - `kode TEXT` (kode unik donasi, mis. `SUNDCL6`)
+  - `status` ENUM `('pending','diterima','ditolak')` default `diterima`
+  - `bukti_bayar_url TEXT` (path file di storage)
+- Storage bucket `bukti-bayar` (public read), RLS upload hanya admin
+- RLS update/delete `transaksi` sudah admin-only — tetap
 
-Aktifkan Lovable Cloud. Skema:
+## Fase 2 — Tab Donasi & Tab Masuk
 
-- `sumber_donasi` (id, nama, urutan)
-- `seksi` (id, nama, rencana_anggaran)
-- `transaksi` (id, tanggal, sumber_donasi_id, seksi_id, nominal, tipe ['pemasukan','pengeluaran'], keterangan)
-- `user_roles` (user_id, role) + fungsi `has_role` security definer
+**Tab Donasi (Sumber Dana)**
+- Card "Sumber Dana Donasi" dengan tombol header **Excel · PDF · Tambah**
+- Search bar
+- Tabel: No · Sumber Donasi · Nominal (sortable) · **Aksi (edit/hapus)**
+- Tombol "Tampilkan lagi (N sisa)" untuk paginate, baris **Total** di bawah
 
-RLS:
-- SELECT publik untuk `sumber_donasi`, `seksi`, `transaksi`.
-- INSERT/UPDATE/DELETE hanya `admin`.
+**Tab Masuk (Donasi Masuk per donatur)**
+- Tabel: Tanggal · Nama · Nominal · **Status badge** (Diterima/Pending/Ditolak warna hijau/abu/merah) · Aksi expand
+- Row expand: Kode, Nama, Sumber, Nominal, Tanggal, Status, **thumbnail Bukti Bayar**
+- Form Tambah: nama donatur, sumber, nominal, tanggal, upload bukti bayar, status
 
-### Seed data Sumber Donasi (clone persis 47 entri)
+## Fase 3 — Tab Transaksi
 
-BANDUNG, BATANG, Belum Konfirmasi, BOJONEGORO 1 - KAPAS, BOJONEGORO 2 - SEKAR, CIREBON, DANA PENGURUS PUSAT, DEMAK 1 - WONOKETINGAL, DEMAK 2 - DEMPET, DEMAK 3 (MRANGGEN), GARUT, GROBOGAN 1 - PURWODADI, GROBOGAN 2 - GODONG, JAKARTA SELATAN, JAMBI, JEPARA, KANJENG GURU, KENDAL 1 - CEPIRING, KENDAL 2 - BOJA, KENDAL BOTOMULYO, KLATEN, PALEMBANG - KOTA, PALEMBANG - SEKAYU, PEMALANG 1 - BELIK, PEMALANG 2 - ULUJAMI, PONOROGO, PURWOREJO, RIAU, SEMARANG - CANDILAMA, SEMARANG - GENUK, SEMARANG - KROBOKAN, SEMARANG - MIJEN, SEMARANG - NGALIYAN, SEMARANG - PEDURUNGAN, SEMARANG - PUSAT, SEMARANG KALICARI, SOLO, TANGERANG, TEGAL 1 - KOTA, TEGAL 2 - SLAWI, TEGAL BARU, TEMANGGUNG, UNGARAN 1 - GOGIK, UNGARAN 2 - JATIRUNGGO, UNGARAN 3 - BABADAN, Wali Santri PPTQCT, YOGYAKARTA.
+- Card header dengan tombol **Excel · PDF · Tambah**
+- 3 stat card berwarna: **MASUK (hijau) · KELUAR (merah) · SALDO (biru)**
+- Search + tombol Filter (filter by tipe/seksi/sumber/tanggal)
+- List item dengan nomor bulat, judul keterangan UPPERCASE, tanggal · seksi/sumber, **thumbnail bukti**, edit (hijau), hapus (merah), nominal warna (+hijau/-merah)
+- Pagination "Rows: 10 · 1-10 / N"
 
-Awalnya semua nominal donasi = Rp 0 (tabel transaksi kosong). Realisasi per sumber akan terisi seiring admin menambah transaksi.
+## Fase 4 — Tab Seksi & Tab Grafik
 
-### Seed data Seksi (dummy awal — bisa diedit admin)
+**Tab Seksi**
+- Card header dengan ringkasan: Anggaran · Dana Masuk · Realisasi
+- Tombol PDF · Filter
+- Tabel: No · Nama Seksi (expand) · Anggaran · Realisasi (+/- selisih) · % (warna hijau ≤100, kuning, merah >100) · edit
+- Expand row → list rincian transaksi seksi tsb (keterangan, tanggal, nominal merah)
+- Progress bar warna sesuai % di bawah nama seksi
+- Baris **Total** di bawah
 
-Contoh seksi acara KHOLWAT: Konsumsi, Perlengkapan, Transportasi, Dokumentasi, Sound System, Sekretariat, Kebersihan, Keamanan — masing-masing dengan rencana anggaran contoh. Total rencana anggaran = nilai **Target Donasi** yang otomatis tampil di kartu atas.
-
-## Tema Visual
-
-- Palet hijau islami (mirip referensi): primary `oklch(0.42 0.10 155)`, accent emerald, kartu Target hijau gelap, kartu Realisasi hijau lebih terang.
-- Token CSS di `src/styles.css` (light + dark), tanpa warna hardcode di komponen.
-- shadcn/ui: Card, Tabs, Table, Input, Button. Ikon `lucide-react` (BookOpen, Target, TrendingUp, List, Users, ArrowLeftRight, PieChart, LogIn).
-- Rounded-xl, shadow lembut, header hijau penuh.
+**Tab Grafik** (pakai recharts)
+- Donut **Dana Masuk vs Keluar** + label Saldo
+- Donut **Pengeluaran per Seksi** dengan legend persentase
+- Donut **Proporsi Donasi per Sumber** dengan legend scrollable + nominal
+- Tombol Print PDF
 
 ## Detail Teknis
 
-- Stack: TanStack Start + React Query + Tailwind v4 + shadcn/ui + recharts.
-- Routing:
-  - `src/routes/index.tsx` — dashboard
-  - `src/routes/login.tsx` — login admin
-  - `src/routes/_authenticated/admin.tsx` — CRUD ringan transaksi/seksi (fase berikut)
-- Data publik via browser supabase client; mutasi via `createServerFn` + `requireSupabaseAuth`.
-- Target = `SUM(seksi.rencana_anggaran)`, Realisasi = `SUM(transaksi.nominal WHERE tipe='pemasukan')`.
-- Pencarian & sort tabel Donasi client-side.
-- SEO `head()`: title "KHOLWAT MDTI 2026 — Majelis Dzikir Tasbih Indonesia" + description + og tags.
+- Komponen baru di `src/components/admin/`: `AdminDonasi.tsx`, `AdminMasuk.tsx`, `AdminTransaksi.tsx`, `AdminSeksi.tsx`, `AdminGrafik.tsx`, plus dialog form (`TransaksiDialog`, `SumberDialog`, `MasukDialog`).
+- Reuse `Tabs`, `Table`, `Dialog`, `Badge`, `Progress` dari shadcn.
+- Export Excel: `xlsx` (sudah ada deps? cek). Export PDF: `jspdf` + `jspdf-autotable`. Print All: `window.print()` dengan CSS print.
+- Upload bukti bayar via `supabase.storage.from('bukti-bayar').upload(...)`.
+- Query data via TanStack Query, invalidate setelah mutate.
+- Filter & pagination pakai state lokal + `useMemo`.
+- Halaman `/` (publik) tidak dimodifikasi — admin punya UI sendiri di `/admin`.
 
-## Yang Tidak Dikerjakan Iterasi Ini
+## Eksekusi Bertahap
 
-- Halaman admin CRUD penuh dengan form lengkap (akan menyusul).
-- Payment gateway / donasi online.
-- Export PDF/Excel.
+Setelah plan disetujui, saya kerjakan **Fase 1 dulu** (migration + storage), tunggu approval migration, baru lanjut Fase 2 → 3 → 4 dalam pesan terpisah agar tiap tahap bisa dicek.
+
+## Yang Perlu Dipastikan
+
+- OK menambah kolom `donor_nama`, `kode`, `status`, `bukti_bayar_url` ke `transaksi`?
+- OK membuat storage bucket public `bukti-bayar` untuk thumbnail bukti?
+- Ada preferensi library export (xlsx + jspdf) atau cukup CSV + window.print?
