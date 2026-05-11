@@ -293,3 +293,27 @@ function ContactCard({ name, role, phone }: { name: string; role: string; phone:
     </div>
   );
 }
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      toast.success("Nomor rekening disalin");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Gagal menyalin");
+    }
+  };
+  return (
+    <button
+      onClick={onCopy}
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-xs font-semibold shadow-sm hover:bg-accent"
+      aria-label={label}
+    >
+      {copied ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+      <span className="hidden sm:inline">{copied ? "Tersalin" : "Salin"}</span>
+    </button>
+  );
+}
