@@ -50,31 +50,53 @@ export function SuratEdaranTab() {
       </section>
 
       {/* Countdown */}
-      <section className="rounded-2xl border bg-card p-6 shadow-sm">
-        <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Hitung Mundur Menuju Hari H
-        </p>
-        <div className="mt-4 flex items-end justify-center gap-3 sm:gap-6">
-          {[
-            { v: d, l: "Hari" },
-            { v: h, l: "Jam" },
-            { v: m, l: "Menit" },
-            { v: s, l: "Detik" },
-          ].map((u, i) => (
-            <div key={u.l} className="flex items-end gap-3 sm:gap-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold tabular-nums text-foreground sm:text-6xl">
+      <section
+        className="relative overflow-hidden rounded-2xl p-6 text-primary-foreground shadow-lg sm:p-8"
+        style={{ background: "var(--gradient-header)" }}
+      >
+        {/* decorative glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-20 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full blur-3xl"
+          style={{ background: "oklch(0.85 0.15 85 / 0.25)" }}
+        />
+        <div className="relative">
+          <div className="flex items-center justify-center gap-3">
+            <span className="h-px w-8 bg-white/30" />
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-amber-200 sm:text-xs">
+              Hitung Mundur Menuju Hari H
+            </p>
+            <span className="h-px w-8 bg-white/30" />
+          </div>
+
+          <div className="mt-6 grid grid-cols-4 gap-2 sm:gap-4">
+            {[
+              { v: d, l: "Hari" },
+              { v: h, l: "Jam" },
+              { v: m, l: "Menit" },
+              { v: s, l: "Detik" },
+            ].map((u) => (
+              <div
+                key={u.l}
+                className="rounded-2xl border border-white/15 bg-white/10 px-1 py-3 text-center shadow-inner backdrop-blur-sm sm:px-3 sm:py-5"
+              >
+                <div className="font-bold tabular-nums leading-none text-white text-[2.25rem] sm:text-6xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]">
                   {pad(u.v)}
                 </div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground sm:text-xs">
+                <div className="mt-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-200/90 sm:mt-3 sm:text-[11px]">
                   {u.l}
                 </div>
               </div>
-              {i < 3 && <div className="pb-6 text-2xl text-muted-foreground sm:pb-10 sm:text-4xl">:</div>}
-            </div>
-          ))}
+            ))}
+          </div>
+
+          <p className="mt-5 text-center text-[11px] text-white/70 sm:text-xs">
+            Jum'at, 10 Juli 2026 · Pukul 13:30 WIB
+          </p>
         </div>
       </section>
+
+
 
       {/* Detail Acara */}
       <section className="rounded-2xl border bg-card p-6 shadow-sm">
