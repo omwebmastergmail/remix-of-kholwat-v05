@@ -1,0 +1,76 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/login")({
+  head: () => ({ meta: [{ title: "Login Admin — KHOLWAT MDTI 2026" }] }),
+  component: LoginPage,
+});
+
+function LoginPage() {
+  const navigate = useNavigate();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    if (mode === "login") {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) toast.error(error.message);
+      else {
+        toast.success("Berhasil masuk");
+        navigate({ to: "/admin" });
+      }
+    } else {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin },
+      });
+      if (error) toast.error(error.message);
+      else toast.success("Pendaftaran berhasil. Cek email untuk verifikasi.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="mx-auto max-w-md px-4 py-10">
+        <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          <h1 className="text-xl font-semibold">{mode === "login" ? "Login Admin" : "Daftar Admin"}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {mode === "login" ? "Masuk untuk mengelola data donasi" : "Buat akun untuk akses admin"}
+          </p>
+          <form onSubmit={submit} className="mt-5 space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="pwd">Password</Label>
+              <Input id="pwd" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Memproses..." : mode === "login" ? "Masuk" : "Daftar"}
+            </Button>
+          </form>
+          <button
+            className="mt-4 w-full text-sm text-muted-foreground hover:text-foreground"
+            onClick={() => setMode((m) => (m === "login" ? "signup" : "login"))}
+          >
+            {mode === "login" ? "Belum punya akun? Daftar di sini" : "Sudah punya akun? Masuk"}
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}
