@@ -35,6 +35,7 @@ function DonasiFormPage() {
   const [donorNama, setDonorNama] = useState("");
   const [sumberId, setSumberId] = useState("");
   const [nominal, setNominal] = useState<number>(0);
+  const [pembayarKolektif, setPembayarKolektif] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [bukti, setBukti] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -88,7 +89,10 @@ function DonasiFormPage() {
         donor_nama: parsed.data.donor_nama,
         sumber_donasi_id: parsed.data.sumber_donasi_id,
         nominal: parsed.data.nominal,
-        keterangan: parsed.data.keterangan || null,
+        keterangan: [
+          pembayarKolektif.trim() ? `Pembayar Kolektif:\n${pembayarKolektif.trim()}` : "",
+          parsed.data.keterangan || "",
+        ].filter(Boolean).join("\n\n") || null,
         bukti_bayar_url: pub.publicUrl,
         kode,
       });
@@ -121,7 +125,7 @@ function DonasiFormPage() {
               <p className="mt-1 text-xl font-bold tabular-nums">{done.kode}</p>
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setKeterangan(""); setBukti(null); }} variant="outline">
+              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setPembayarKolektif(""); setKeterangan(""); setBukti(null); }} variant="outline">
                 Kirim Lagi
               </Button>
               <Button onClick={() => navigate({ to: "/" })}>Kembali ke Beranda</Button>
@@ -164,8 +168,20 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nama">Nama Donatur *</Label>
-            <Input id="nama" required maxLength={100} value={donorNama} onChange={(e) => setDonorNama(e.target.value)} placeholder="Nama lengkap" />
+            <Label htmlFor="nama">Nama Pembayar *</Label>
+            <Input id="nama" required maxLength={100} value={donorNama} onChange={(e) => setDonorNama(e.target.value)} placeholder="Nama lengkap pembayar" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="kolektif">Nama Pembayar Kolektif</Label>
+            <Textarea
+              id="kolektif"
+              maxLength={1000}
+              value={pembayarKolektif}
+              onChange={(e) => setPembayarKolektif(e.target.value)}
+              placeholder="Isi jika pembayaran kolektif. Tuliskan nama-nama (satu per baris)"
+              rows={4}
+            />
           </div>
 
           <div className="space-y-2">
