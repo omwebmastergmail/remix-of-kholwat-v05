@@ -48,7 +48,7 @@ function Dashboard() {
     nama: s.nama,
     urutan: s.urutan,
     nominal: trx
-      .filter((t: any) => t.sumber_donasi_id === s.id && t.tipe === "pemasukan")
+      .filter((t: any) => t.sumber_donasi_id === s.id && t.tipe === "pemasukan" && t.status === "diterima")
       .reduce((sum: number, t: any) => sum + Number(t.nominal), 0),
   }));
 
