@@ -1,11 +1,13 @@
 import { Fragment as FragmentRow, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import type { Sumber, Seksi, Trx } from "@/lib/admin-types";
 import { StatusBadge } from "./StatusBadge";
 import { TransaksiDialog } from "./TransaksiDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Props {
   sumber: Sumber[];
@@ -20,16 +22,40 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const rows = useMemo(
-    () => trx.filter((t) => t.tipe === "pemasukan").sort((a, b) => b.tanggal.localeCompare(a.tanggal)),
+    () =>
+      trx
+        .filter((t) => t.tipe === "pemasukan")
+        .sort((a, b) => {
+          // pending dulu, lalu tanggal terbaru
+          if (a.status === "pending" && b.status !== "pending") return -1;
+          if (b.status === "pending" && a.status !== "pending") return 1;
+          return b.tanggal.localeCompare(a.tanggal);
+        }),
     [trx],
   );
+
+  const pendingCount = rows.filter((r) => r.status === "pending").length;
+
+  const setStatus = async (id: string, status: "diterima" | "ditolak") => {
+    const { error } = await supabase.from("transaksi").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(status === "diterima" ? "Donasi diverifikasi" : "Donasi ditolak");
+    onChanged();
+  };
 
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Donasi Masuk</h2>
-          <p className="text-sm text-muted-foreground">Daftar donasi per donatur</p>
+          <p className="text-sm text-muted-foreground">
+            Daftar donasi per donatur
+            {pendingCount > 0 && (
+              <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                {pendingCount} menunggu verifikasi
+              </span>
+            )}
+          </p>
         </div>
         <Button size="sm" onClick={() => { setEdit(null); setOpen(true); }}>
           <Plus className="mr-1 h-4 w-4" /> Tambah
@@ -84,9 +110,21 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
                                 Tidak ada
                               </div>
                             )}
-                            <Button size="sm" variant="outline" className="mt-2" onClick={(e) => { e.stopPropagation(); setEdit(r); setOpen(true); }}>
-                              Edit
-                            </Button>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setEdit(r); setOpen(true); }}>
+                                Edit
+                              </Button>
+                              {r.status === "pending" && (
+                                <>
+                                  <Button size="sm" onClick={(e) => { e.stopPropagation(); setStatus(r.id, "diterima"); }}>
+                                    <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Verifikasi
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); setStatus(r.id, "ditolak"); }}>
+                                    <XCircle className="mr-1 h-3.5 w-3.5" /> Tolak
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </TableCell>

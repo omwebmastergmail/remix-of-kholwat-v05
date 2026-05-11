@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText, Download, Copy, Check, Landmark, ExternalLink } from "lucide-react";
+import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText, Download, Copy, Check, Landmark, ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 function useCountdown(target: Date) {
@@ -179,14 +180,12 @@ export function SuratEdaranTab() {
           <p className="text-sm text-muted-foreground">
             Setelah transfer, mohon konfirmasi pembayaran melalui form berikut:
           </p>
-          <a
-            href="https://www.infohbhmdti.my.id/donasi"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/donasi"
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
           >
-            <ExternalLink className="h-4 w-4" /> Isi Form Konfirmasi Donasi
-          </a>
+            Isi Form Konfirmasi Donasi <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
