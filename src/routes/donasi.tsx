@@ -168,8 +168,20 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nama">Nama Donatur *</Label>
-            <Input id="nama" required maxLength={100} value={donorNama} onChange={(e) => setDonorNama(e.target.value)} placeholder="Nama lengkap" />
+            <Label htmlFor="nama">Nama Pembayar *</Label>
+            <Input id="nama" required maxLength={100} value={donorNama} onChange={(e) => setDonorNama(e.target.value)} placeholder="Nama lengkap pembayar" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="kolektif">Nama Pembayar Kolektif</Label>
+            <Textarea
+              id="kolektif"
+              maxLength={1000}
+              value={pembayarKolektif}
+              onChange={(e) => setPembayarKolektif(e.target.value)}
+              placeholder="Isi jika pembayaran kolektif. Tuliskan nama-nama (satu per baris)"
+              rows={4}
+            />
           </div>
 
           <div className="space-y-2">
