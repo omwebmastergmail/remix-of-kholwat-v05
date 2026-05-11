@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment as FragmentRow, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, FileText, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,8 +92,8 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
               const detail = trx.filter((t) => t.seksi_id === r.id && t.tipe === "pengeluaran")
                 .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
               return (
-                <>
-                  <TableRow key={r.id}>
+                <FragmentRow key={r.id}>
+                  <TableRow>
                     <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                     <TableCell>
                       <button className="flex items-center gap-1 font-medium" onClick={() => setExpanded(isOpen ? null : r.id)}>
@@ -135,7 +135,7 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </FragmentRow>
               );
             })}
             <TableRow className="bg-muted/40 font-semibold">

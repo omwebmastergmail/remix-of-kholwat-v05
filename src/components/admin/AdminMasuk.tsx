@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment as FragmentRow, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -52,8 +52,8 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
               const isOpen = expanded === r.id;
               const sumberNama = sumber.find((s) => s.id === r.sumber_donasi_id)?.nama;
               return (
-                <>
-                  <TableRow key={r.id} className="cursor-pointer" onClick={() => setExpanded(isOpen ? null : r.id)}>
+                <FragmentRow key={r.id}>
+                  <TableRow className="cursor-pointer" onClick={() => setExpanded(isOpen ? null : r.id)}>
                     <TableCell className="whitespace-nowrap">{formatTanggal(r.tanggal)}</TableCell>
                     <TableCell className="font-medium">{r.donor_nama ?? "-"}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatRupiah(r.nominal)}</TableCell>
@@ -92,7 +92,7 @@ export function AdminMasuk({ sumber, seksi, trx, onChanged }: Props) {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </FragmentRow>
               );
             })}
             {rows.length === 0 && (
