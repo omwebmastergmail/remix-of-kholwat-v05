@@ -46,7 +46,7 @@ export function SuratEdaranTab() {
         <p className="mx-auto max-w-2xl text-sm italic opacity-95 sm:text-base">
           "Bersama Kita Bisa, Bersatu Kita Mampu."
         </p>
-        <p className="mt-2 text-xs opacity-80">— Nasihat Para Salik</p>
+        <p className="mt-2 text-xs opacity-80">— Kanjeng Guru</p>
       </section>
 
       {/* Countdown */}
