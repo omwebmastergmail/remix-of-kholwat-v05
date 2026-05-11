@@ -2,6 +2,7 @@ import { Fragment as FragmentRow, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NominalInput } from "@/components/admin/NominalInput";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -210,7 +211,7 @@ export function AdminSeksi({ seksi, trx, masuk, onChanged }: Props) {
               </div>
               <div>
                 <Label>Rencana Anggaran (Rp)</Label>
-                <Input type="number" min="0" value={form.rencana_anggaran} onChange={(e) => setForm({ ...form, rencana_anggaran: Number(e.target.value) })} />
+                <NominalInput value={form.rencana_anggaran} onChange={(v) => setForm({ ...form, rencana_anggaran: v })} placeholder="0" />
               </div>
               <div>
                 <Label>Urutan Tampil</Label>
