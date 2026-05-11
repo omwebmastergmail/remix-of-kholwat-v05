@@ -50,7 +50,7 @@ export function TransaksiDialog({ open, onOpenChange, initial, defaultTipe, sumb
     } else {
       setTanggal(new Date().toISOString().slice(0, 10));
       setTipe(defaultTipe ?? "pemasukan");
-      setSumberId(""); setSeksiId(""); setNominal(""); setKeterangan("");
+      setSumberId(""); setSeksiId(""); setNominal(0); setKeterangan("");
       setDonorNama(""); setKode(""); setStatus("diterima");
       setExistingUrl(null);
     }
