@@ -89,7 +89,10 @@ function DonasiFormPage() {
         donor_nama: parsed.data.donor_nama,
         sumber_donasi_id: parsed.data.sumber_donasi_id,
         nominal: parsed.data.nominal,
-        keterangan: parsed.data.keterangan || null,
+        keterangan: [
+          pembayarKolektif.trim() ? `Pembayar Kolektif:\n${pembayarKolektif.trim()}` : "",
+          parsed.data.keterangan || "",
+        ].filter(Boolean).join("\n\n") || null,
         bukti_bayar_url: pub.publicUrl,
         kode,
       });
