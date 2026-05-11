@@ -35,6 +35,7 @@ function DonasiFormPage() {
   const [donorNama, setDonorNama] = useState("");
   const [sumberId, setSumberId] = useState("");
   const [nominal, setNominal] = useState<number>(0);
+  const [pembayarKolektif, setPembayarKolektif] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [bukti, setBukti] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
