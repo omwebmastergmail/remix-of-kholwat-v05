@@ -30,7 +30,7 @@ export function Header() {
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-lg font-bold leading-tight sm:text-xl">KHOLWAT MDTI 2026</h1>
+            <h1 className="text-lg font-bold leading-tight sm:text-xl">Kholwat MDTI 2026</h1>
             <p className="text-xs opacity-90 sm:text-sm">Majelis Dzikir Tasbih Indonesia</p>
           </div>
         </Link>
