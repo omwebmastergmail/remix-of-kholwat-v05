@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText, Download, Copy, Check, Landmark, ExternalLink } from "lucide-react";
+import { Calendar, Clock, MapPin, Wallet, UserCheck, Phone, FileText, Download, Copy, Check, Landmark, ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 function useCountdown(target: Date) {
