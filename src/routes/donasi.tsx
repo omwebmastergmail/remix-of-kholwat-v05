@@ -36,8 +36,11 @@ function DonasiFormPage() {
   const [donorNama, setDonorNama] = useState("");
   const [sumberId, setSumberId] = useState("");
   const [nominal, setNominal] = useState<number>(0);
-  const [pembayarKolektif, setPembayarKolektif] = useState("");
+  const [kolektif, setKolektif] = useState<{ nama: string; nominal: number }[]>([]);
   const [keterangan, setKeterangan] = useState("");
+  const kolektifSum = kolektif.reduce((s, r) => s + (Number(r.nominal) || 0), 0);
+  const isKolektif = kolektif.length > 0;
+  const effectiveNominal = isKolektif ? kolektifSum : nominal;
   const [bukti, setBukti] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ kode: string } | null>(null);
