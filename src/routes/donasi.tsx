@@ -187,15 +187,75 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="kolektif">Nama Pembayar Kolektif</Label>
-            <Textarea
-              id="kolektif"
-              maxLength={1000}
-              value={pembayarKolektif}
-              onChange={(e) => setPembayarKolektif(e.target.value)}
-              placeholder="Isi jika pembayaran kolektif. Tuliskan nama-nama (satu per baris)"
-              rows={4}
-            />
+            <div className="flex items-center justify-between gap-2">
+              <Label>Nama Pembayar Kolektif</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setKolektif((p) => [...p, { nama: "", nominal: 0 }])}
+              >
+                <Plus className="h-4 w-4" /> Tambah
+              </Button>
+            </div>
+            {isKolektif ? (
+              <div className="overflow-hidden rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs">
+                    <tr>
+                      <th className="px-2 py-2 text-left font-medium">Nama</th>
+                      <th className="px-2 py-2 text-right font-medium w-40">Nominal</th>
+                      <th className="w-10" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {kolektif.map((row, idx) => (
+                      <tr key={idx} className="border-t">
+                        <td className="p-1.5">
+                          <Input
+                            value={row.nama}
+                            onChange={(e) =>
+                              setKolektif((p) => p.map((r, i) => (i === idx ? { ...r, nama: e.target.value } : r)))
+                            }
+                            placeholder="Nama"
+                            className="h-9"
+                          />
+                        </td>
+                        <td className="p-1.5">
+                          <NominalInput
+                            value={row.nominal}
+                            onChange={(v) =>
+                              setKolektif((p) => p.map((r, i) => (i === idx ? { ...r, nominal: v } : r)))
+                            }
+                            placeholder="0"
+                            className="h-9 text-right"
+                          />
+                        </td>
+                        <td className="p-1.5">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setKolektif((p) => p.filter((_, i) => i !== idx))}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t bg-muted/30">
+                      <td className="px-2 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Total
+                      </td>
+                      <td className="px-2 py-2 text-right font-bold tabular-nums">{formatRupiah(kolektifSum)}</td>
+                      <td />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Klik "Tambah" jika pembayaran kolektif (Nama + Nominal per orang). Total otomatis terisi ke Nominal.</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -211,8 +271,12 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nominal">Nominal *</Label>
-            <NominalInput id="nominal" value={nominal} onChange={setNominal} placeholder="0" />
+            <Label htmlFor="nominal">Nominal *{isKolektif && <span className="ml-1 text-xs text-muted-foreground">(otomatis dari kolektif)</span>}</Label>
+            {isKolektif ? (
+              <Input id="nominal" value={formatRupiah(kolektifSum)} readOnly className="bg-muted/50 font-semibold tabular-nums" />
+            ) : (
+              <NominalInput id="nominal" value={nominal} onChange={setNominal} placeholder="0" />
+            )}
           </div>
 
           <div className="space-y-2">
