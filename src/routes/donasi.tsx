@@ -68,7 +68,14 @@ function DonasiFormPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ donor_nama: donorNama, sumber_donasi_id: sumberId, nominal, keterangan });
+    if (isKolektif) {
+      const invalid = kolektif.some((r) => !r.nama.trim() || !r.nominal || r.nominal <= 0);
+      if (invalid) {
+        toast.error("Lengkapi nama & nominal setiap baris kolektif");
+        return;
+      }
+    }
+    const parsed = schema.safeParse({ donor_nama: donorNama, sumber_donasi_id: sumberId, nominal: effectiveNominal, keterangan });
     if (!parsed.success) {
       toast.error(parsed.error.errors[0].message);
       return;
@@ -85,6 +92,9 @@ function DonasiFormPage() {
       if (up.error) throw up.error;
       const { data: pub } = supabase.storage.from("bukti-bayar").getPublicUrl(path);
 
+      const kolektifText = isKolektif
+        ? "Pembayar Kolektif:\n" + kolektif.map((r) => `- ${r.nama.trim()} : ${formatRupiah(r.nominal)}`).join("\n")
+        : "";
       const kode = "DN-" + Date.now().toString(36).toUpperCase();
       const { error } = await supabase.from("transaksi").insert({
         tipe: "pemasukan",
@@ -94,7 +104,7 @@ function DonasiFormPage() {
         sumber_donasi_id: parsed.data.sumber_donasi_id,
         nominal: parsed.data.nominal,
         keterangan: [
-          pembayarKolektif.trim() ? `Pembayar Kolektif:\n${pembayarKolektif.trim()}` : "",
+          kolektifText,
           parsed.data.keterangan || "",
         ].filter(Boolean).join("\n\n") || null,
         bukti_bayar_url: pub.publicUrl,
