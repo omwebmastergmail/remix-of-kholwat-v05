@@ -15,7 +15,6 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -24,21 +23,11 @@ function LoginPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) toast.error(error.message);
-      else {
-        toast.success("Berhasil masuk");
-        navigate({ to: "/admin" });
-      }
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: window.location.origin },
-      });
-      if (error) toast.error(error.message);
-      else toast.success("Pendaftaran berhasil. Cek email untuk verifikasi.");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Berhasil masuk");
+      navigate({ to: "/admin" });
     }
     setLoading(false);
   };
@@ -48,10 +37,8 @@ function LoginPage() {
       <Header />
       <main className="mx-auto max-w-md px-4 py-10">
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
-          <h1 className="text-xl font-semibold">{mode === "login" ? "Login Admin" : "Daftar Admin"}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "login" ? "Masuk untuk mengelola data donasi" : "Buat akun untuk akses admin"}
-          </p>
+          <h1 className="text-xl font-semibold">Login Admin</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Masuk untuk mengelola data donasi</p>
           <form onSubmit={submit} className="mt-5 space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -80,15 +67,9 @@ function LoginPage() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Memproses..." : mode === "login" ? "Masuk" : "Daftar"}
+              {loading ? "Memproses..." : "Masuk"}
             </Button>
           </form>
-          <button
-            className="mt-4 w-full text-sm text-muted-foreground hover:text-foreground"
-            onClick={() => setMode((m) => (m === "login" ? "signup" : "login"))}
-          >
-            {mode === "login" ? "Belum punya akun? Daftar di sini" : "Sudah punya akun? Masuk"}
-          </button>
         </div>
       </main>
     </div>
