@@ -170,10 +170,10 @@ export function SuratEdaranTab() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bank BRI</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-primary">1234567890</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-primary">6094 0101 4135 505</p>
               <p className="mt-1 text-sm">a.n. <span className="font-semibold">Rudianto</span></p>
             </div>
-            <CopyButton value="1234567890" label="Salin No. Rekening" />
+            <CopyButton value="609401014135505" label="Salin No. Rekening" />
           </div>
         </div>
         <div className="mt-4 rounded-lg bg-muted/60 p-4">
