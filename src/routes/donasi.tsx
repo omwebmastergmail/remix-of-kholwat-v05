@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Upload, CheckCircle2, Landmark, Copy, Check } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Landmark, Copy, Check, Plus, Trash2 } from "lucide-react";
+import { formatRupiah } from "@/lib/format";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -35,8 +36,11 @@ function DonasiFormPage() {
   const [donorNama, setDonorNama] = useState("");
   const [sumberId, setSumberId] = useState("");
   const [nominal, setNominal] = useState<number>(0);
-  const [pembayarKolektif, setPembayarKolektif] = useState("");
+  const [kolektif, setKolektif] = useState<{ nama: string; nominal: number }[]>([]);
   const [keterangan, setKeterangan] = useState("");
+  const kolektifSum = kolektif.reduce((s, r) => s + (Number(r.nominal) || 0), 0);
+  const isKolektif = kolektif.length > 0;
+  const effectiveNominal = isKolektif ? kolektifSum : nominal;
   const [bukti, setBukti] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<{ kode: string } | null>(null);
@@ -64,7 +68,14 @@ function DonasiFormPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ donor_nama: donorNama, sumber_donasi_id: sumberId, nominal, keterangan });
+    if (isKolektif) {
+      const invalid = kolektif.some((r) => !r.nama.trim() || !r.nominal || r.nominal <= 0);
+      if (invalid) {
+        toast.error("Lengkapi nama & nominal setiap baris kolektif");
+        return;
+      }
+    }
+    const parsed = schema.safeParse({ donor_nama: donorNama, sumber_donasi_id: sumberId, nominal: effectiveNominal, keterangan });
     if (!parsed.success) {
       toast.error(parsed.error.errors[0].message);
       return;
@@ -81,6 +92,9 @@ function DonasiFormPage() {
       if (up.error) throw up.error;
       const { data: pub } = supabase.storage.from("bukti-bayar").getPublicUrl(path);
 
+      const kolektifText = isKolektif
+        ? "Pembayar Kolektif:\n" + kolektif.map((r) => `- ${r.nama.trim()} : ${formatRupiah(r.nominal)}`).join("\n")
+        : "";
       const kode = "DN-" + Date.now().toString(36).toUpperCase();
       const { error } = await supabase.from("transaksi").insert({
         tipe: "pemasukan",
@@ -90,7 +104,7 @@ function DonasiFormPage() {
         sumber_donasi_id: parsed.data.sumber_donasi_id,
         nominal: parsed.data.nominal,
         keterangan: [
-          pembayarKolektif.trim() ? `Pembayar Kolektif:\n${pembayarKolektif.trim()}` : "",
+          kolektifText,
           parsed.data.keterangan || "",
         ].filter(Boolean).join("\n\n") || null,
         bukti_bayar_url: pub.publicUrl,
@@ -125,7 +139,7 @@ function DonasiFormPage() {
               <p className="mt-1 text-xl font-bold tabular-nums">{done.kode}</p>
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setPembayarKolektif(""); setKeterangan(""); setBukti(null); }} variant="outline">
+              <Button onClick={() => { setDone(null); setDonorNama(""); setSumberId(""); setNominal(0); setKolektif([]); setKeterangan(""); setBukti(null); }} variant="outline">
                 Kirim Lagi
               </Button>
               <Button onClick={() => navigate({ to: "/" })}>Kembali ke Beranda</Button>
@@ -173,15 +187,75 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="kolektif">Nama Pembayar Kolektif</Label>
-            <Textarea
-              id="kolektif"
-              maxLength={1000}
-              value={pembayarKolektif}
-              onChange={(e) => setPembayarKolektif(e.target.value)}
-              placeholder="Isi jika pembayaran kolektif. Tuliskan nama-nama (satu per baris)"
-              rows={4}
-            />
+            <div className="flex items-center justify-between gap-2">
+              <Label>Nama Pembayar Kolektif</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setKolektif((p) => [...p, { nama: "", nominal: 0 }])}
+              >
+                <Plus className="h-4 w-4" /> Tambah
+              </Button>
+            </div>
+            {isKolektif ? (
+              <div className="overflow-hidden rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-xs">
+                    <tr>
+                      <th className="px-2 py-2 text-left font-medium">Nama</th>
+                      <th className="px-2 py-2 text-right font-medium w-40">Nominal</th>
+                      <th className="w-10" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {kolektif.map((row, idx) => (
+                      <tr key={idx} className="border-t">
+                        <td className="p-1.5">
+                          <Input
+                            value={row.nama}
+                            onChange={(e) =>
+                              setKolektif((p) => p.map((r, i) => (i === idx ? { ...r, nama: e.target.value } : r)))
+                            }
+                            placeholder="Nama"
+                            className="h-9"
+                          />
+                        </td>
+                        <td className="p-1.5">
+                          <NominalInput
+                            value={row.nominal}
+                            onChange={(v) =>
+                              setKolektif((p) => p.map((r, i) => (i === idx ? { ...r, nominal: v } : r)))
+                            }
+                            placeholder="0"
+                            className="h-9 text-right"
+                          />
+                        </td>
+                        <td className="p-1.5">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => setKolektif((p) => p.filter((_, i) => i !== idx))}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t bg-muted/30">
+                      <td className="px-2 py-2 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Total
+                      </td>
+                      <td className="px-2 py-2 text-right font-bold tabular-nums">{formatRupiah(kolektifSum)}</td>
+                      <td />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Klik "Tambah" jika pembayaran kolektif (Nama + Nominal per orang). Total otomatis terisi ke Nominal.</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -197,8 +271,12 @@ function DonasiFormPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nominal">Nominal *</Label>
-            <NominalInput id="nominal" value={nominal} onChange={setNominal} placeholder="0" />
+            <Label htmlFor="nominal">Nominal *{isKolektif && <span className="ml-1 text-xs text-muted-foreground">(otomatis dari kolektif)</span>}</Label>
+            {isKolektif ? (
+              <Input id="nominal" value={formatRupiah(kolektifSum)} readOnly className="bg-muted/50 font-semibold tabular-nums" />
+            ) : (
+              <NominalInput id="nominal" value={nominal} onChange={setNominal} placeholder="0" />
+            )}
           </div>
 
           <div className="space-y-2">
