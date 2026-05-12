@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Upload, CheckCircle2, Landmark, Copy, Check } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle2, Landmark, Copy, Check, Plus, Trash2 } from "lucide-react";
+import { formatRupiah } from "@/lib/format";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
