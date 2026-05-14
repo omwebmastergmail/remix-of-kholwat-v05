@@ -73,7 +73,7 @@ export function AdminGrafik({ sumber, seksi, trx }: { sumber: Sumber[]; seksi: S
         <DonutWithLegend data={seksiData} total={totalSeksi} />
       </ChartCard>
 
-      <ChartCard title="Proporsi Donasi Per Sumber" dot="bg-amber-500">
+      <ChartCard title="Proporsi Iuran per Cabang" dot="bg-amber-500">
         <DonutWithLegend data={sumberData} total={totalSumber} showRupiah />
       </ChartCard>
     </div>
