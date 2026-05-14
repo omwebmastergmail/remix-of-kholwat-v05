@@ -25,7 +25,7 @@ export const Route = createFileRoute("/donasi")({
 
 const schema = z.object({
   donor_nama: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
-  sumber_donasi_id: z.string().uuid("Pilih sumber donasi"),
+  sumber_donasi_id: z.string().uuid("Pilih cabang"),
   nominal: z.number().min(1000, "Nominal minimal Rp 1.000"),
   keterangan: z.string().trim().max(500).optional().or(z.literal("")),
 });
@@ -131,8 +131,8 @@ function DonasiFormPage() {
             </div>
             <h1 className="mt-4 text-2xl font-bold">Terima Kasih!</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Konfirmasi donasi Anda telah kami terima dan akan diverifikasi panitia.
-              Setelah disetujui, donasi akan tampil pada Data Sumber Donasi.
+              Konfirmasi pembayaran iuran Anda telah kami terima dan akan diverifikasi panitia.
+              Setelah disetujui, pembayaran iuran anda akan tampil pada Data Iuran Cabang.
             </p>
             <div className="mt-4 rounded-lg bg-muted/60 p-4">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Kode Konfirmasi</p>
@@ -177,7 +177,7 @@ function DonasiFormPage() {
 
         <form onSubmit={submit} className="space-y-4 rounded-2xl border bg-card p-6 shadow-sm">
           <div>
-            <h1 className="text-xl font-bold">Konfirmasi Donasi</h1>
+            <h1 className="text-xl font-bold">Konfirmasi Pembayaran Iuran Kholwat</h1>
             <p className="text-sm text-muted-foreground">Lengkapi form di bawah dan unggah bukti transfer.</p>
           </div>
 
@@ -188,14 +188,14 @@ function DonasiFormPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <Label>Nama Pembayar Kolektif</Label>
+              <Label>Nama Pembayar Kolektif atau Rombongan</Label>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
                 onClick={() => setKolektif((p) => [...p, { nama: "", nominal: 0 }])}
               >
-                <Plus className="h-4 w-4" /> Tambah
+                <Plus className="h-4 w-4" /> Tambah Nama
               </Button>
             </div>
             {isKolektif ? (
@@ -261,7 +261,7 @@ function DonasiFormPage() {
           <div className="space-y-2">
             <Label>Sumber Donasi dari Cabang *</Label>
             <Select value={sumberId} onValueChange={setSumberId}>
-              <SelectTrigger><SelectValue placeholder="Pilih sumber donasi" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Pilih cabang MDTI" /></SelectTrigger>
               <SelectContent>
                 {sumber.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.nama}</SelectItem>
@@ -299,10 +299,10 @@ function DonasiFormPage() {
           </div>
 
           <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Mengirim..." : "Kirim Konfirmasi Donasi"}
+            {submitting ? "Mengirim..." : "Kirim Konfirmasi Iuran Kholwat"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
-            Donasi akan tampil di Data Sumber Donasi setelah diverifikasi panitia.
+            Pembayaran iuran akan tampil di Data List Cabang setelah diverifikasi panitia.
           </p>
         </form>
       </main>
