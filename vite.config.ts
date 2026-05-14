@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [
     tsConfigPaths(),
     tailwindcss(),
-    tanstackStart({ target: "vercel" }),
+    // Nitro auto-detects Vercel from VERCEL=1 env var at build time.
+    tanstackStart(),
     viteReact(),
   ],
   resolve: {
