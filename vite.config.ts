@@ -11,7 +11,8 @@ export default defineConfig({
     // SPA mode: build emits a static index.html shell + client-side routing.
     // No SSR runtime needed on Vercel — just serve dist/client/ with SPA rewrite.
     tanstackStart({
-      spa: { enabled: true },
+      spa: { enabled: true, maskPath: "/" },
+      pages: [{ path: "/" }],
     }),
     viteReact(),
   ],
