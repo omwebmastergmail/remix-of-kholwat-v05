@@ -28,13 +28,13 @@ export function DonasiTab({ data }: { data: SumberRow[] }) {
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-foreground">Sumber Dana Donasi</h2>
-        <p className="text-sm text-muted-foreground">Kontribusi per sumber donasi</p>
+        <h2 className="text-lg font-semibold text-foreground">Sumber Dana Iuran Cabang</h2>
+        <p className="text-sm text-muted-foreground">Kontribusi Iuran per Cabang</p>
       </div>
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Cari sumber donasi..."
+          placeholder="Cari Iuran Cabang..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
           className="pl-9"
@@ -45,7 +45,7 @@ export function DonasiTab({ data }: { data: SumberRow[] }) {
           <TableHeader>
             <TableRow className="bg-primary hover:bg-primary">
               <TableHead className="w-14 text-primary-foreground">No</TableHead>
-              <TableHead className="text-primary-foreground">Sumber Donasi</TableHead>
+              <TableHead className="text-primary-foreground">Iuran Cabang</TableHead>
               <TableHead className="text-right text-primary-foreground">
                 <button
                   className="inline-flex items-center gap-1"
