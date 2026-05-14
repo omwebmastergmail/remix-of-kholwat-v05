@@ -25,7 +25,7 @@ export function TransaksiTab({ data }: { data: TrxRow[] }) {
             <TableRow className="bg-primary hover:bg-primary">
               <TableHead className="text-primary-foreground">Tanggal</TableHead>
               <TableHead className="text-primary-foreground">Tipe</TableHead>
-              <TableHead className="text-primary-foreground">Sumber / Seksi</TableHead>
+              <TableHead className="text-primary-foreground">Cabang / Seksi</TableHead>
               <TableHead className="text-primary-foreground">Keterangan</TableHead>
               <TableHead className="text-right text-primary-foreground">Nominal</TableHead>
             </TableRow>
