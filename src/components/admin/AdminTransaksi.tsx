@@ -108,7 +108,7 @@ export function AdminTransaksi({ sumber, seksi, trx, onChanged }: Props) {
           <Select value={tipeFilter} onValueChange={(v) => { setTipeFilter(v as any); setPage(0); }}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua tipe</SelectItem>
+              <SelectItem value="all">Semua</SelectItem>
               <SelectItem value="pemasukan">Pemasukan</SelectItem>
               <SelectItem value="pengeluaran">Pengeluaran</SelectItem>
             </SelectContent>
@@ -126,7 +126,7 @@ export function AdminTransaksi({ sumber, seksi, trx, onChanged }: Props) {
                 {start + i + 1}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-semibold uppercase">{t.keterangan ?? (isIn ? t.donor_nama ?? "DONASI" : "TRANSAKSI")}</div>
+                <div className="truncate text-sm font-semibold uppercase">{t.keterangan ?? (isIn ? t.donor_nama ?? "IURAN" : "TRANSAKSI")}</div>
                 <div className="text-xs text-muted-foreground">{formatTanggal(t.tanggal)} · {refOf(t)}</div>
               </div>
               {t.bukti_bayar_url && (
