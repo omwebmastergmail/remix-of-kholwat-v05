@@ -30,8 +30,8 @@ export function GrafikTab({ seksi, sumber }: { seksi: SeksiRow[]; sumber: Sumber
       </div>
 
       <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
-        <h2 className="mb-1 text-lg font-semibold">Komposisi Sumber Donasi</h2>
-        <p className="mb-4 text-sm text-muted-foreground">Distribusi penerimaan per sumber</p>
+        <h2 className="mb-1 text-lg font-semibold">Komposisi Iuran Cabang</h2>
+        <p className="mb-4 text-sm text-muted-foreground">Distribusi penerimaan iuran per cabang</p>
         <div className="h-80 w-full">
           {sumberData.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
