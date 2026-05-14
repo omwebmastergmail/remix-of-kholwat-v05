@@ -8,8 +8,11 @@ export default defineConfig({
   plugins: [
     tsConfigPaths(),
     tailwindcss(),
-    // Nitro auto-detects Vercel from VERCEL=1 env var at build time.
-    tanstackStart(),
+    // SPA mode: build emits a static index.html shell + client-side routing.
+    // No SSR runtime needed on Vercel — just serve dist/client/ with SPA rewrite.
+    tanstackStart({
+      spa: { enabled: true },
+    }),
     viteReact(),
   ],
   resolve: {
