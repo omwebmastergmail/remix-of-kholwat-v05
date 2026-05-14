@@ -184,7 +184,7 @@ export function SuratEdaranTab() {
             to="/donasi"
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
           >
-            Isi Form Konfirmasi Donasi <ArrowRight className="h-4 w-4" />
+            Isi Form Konfirmasi Bayar Iuran Kholwat <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
