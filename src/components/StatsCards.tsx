@@ -13,7 +13,7 @@ export function StatsCards({ target, realisasi }: { target: number; realisasi: n
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
             <Target className="h-5 w-5" />
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wider opacity-90">Target Donasi</span>
+          <span className="text-xs font-semibold uppercase tracking-wider opacity-90">Target Iuran</span>
         </div>
         <p className="mt-4 text-2xl font-bold sm:text-3xl">{formatRupiah(target)}</p>
       </div>
@@ -25,7 +25,7 @@ export function StatsCards({ target, realisasi }: { target: number; realisasi: n
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
             <TrendingUp className="h-5 w-5" />
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wider opacity-90">Realisasi</span>
+          <span className="text-xs font-semibold uppercase tracking-wider opacity-90">Realisasi Iuran</span>
         </div>
         <p className="mt-4 text-2xl font-bold sm:text-3xl">{formatRupiah(realisasi)}</p>
         <p className="mt-1 text-sm opacity-90">{persen}% {persen >= 100 ? "- Tercapai" : "- Tercapai"}</p>
