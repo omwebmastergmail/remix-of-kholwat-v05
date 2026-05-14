@@ -51,14 +51,14 @@ export function AdminDonasi({ sumber, trx, onChanged }: Props) {
     <div className="rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Sumber Dana Donasi</h2>
-          <p className="text-sm text-muted-foreground">Kontribusi per sumber donasi</p>
+          <h2 className="text-lg font-semibold">List Iuran Cabang</h2>
+          <p className="text-sm text-muted-foreground">Kontribusi iuran per cabang</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => exportXlsx("sumber-donasi", "Donasi", rows.map((r, i) => ({ No: i + 1, Sumber: r.nama, Nominal: r.nominal })))}>
+          <Button variant="outline" size="sm" onClick={() => exportXlsx("sumber-donasi", "Iuran", rows.map((r, i) => ({ No: i + 1, Sumber: r.nama, Nominal: r.nominal })))}>
             <FileSpreadsheet className="mr-1 h-4 w-4" /> Excel
           </Button>
-          <Button variant="outline" size="sm" className="text-red-600" onClick={() => exportPdf("Sumber Dana Donasi", "sumber-donasi", ["No", "Sumber", "Nominal"], rows.map((r, i) => [i + 1, r.nama, formatRupiah(r.nominal)]))}>
+          <Button variant="outline" size="sm" className="text-red-600" onClick={() => exportPdf("Dana Iuran Cabang", "sumber-donasi", ["No", "Sumber", "Nominal"], rows.map((r, i) => [i + 1, r.nama, formatRupiah(r.nominal)]))}>
             <FileText className="mr-1 h-4 w-4" /> PDF
           </Button>
           <Button size="sm" onClick={() => { setEdit(null); setOpen(true); }}>
