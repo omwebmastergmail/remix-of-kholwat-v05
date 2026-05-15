@@ -1,22 +1,11 @@
-import { defineConfig } from "vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
-import tsConfigPaths from "vite-tsconfig-paths";
-import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// `main` HARUS pakai preset Lovable agar preview & published Lovable
+// (Cloudflare Worker) jalan. Konfigurasi khusus Vercel disimpan di
+// `scripts/vercel-overrides/vite.config.ts` dan hanya dipakai di branch
+// `vercel-ssr`. Jangan merge file override itu ke main.
 export default defineConfig({
-  plugins: [
-    tsConfigPaths(),
-    tailwindcss(),
-    // SPA mode: build emits a static index.html shell + client-side routing.
-    // No SSR runtime needed on Vercel — just serve dist/client/ with SPA rewrite.
-    tanstackStart({
-      spa: { enabled: true, maskPath: "/" },
-      pages: [{ path: "/" }],
-    }),
-    viteReact(),
-  ],
-  resolve: {
-    dedupe: ["react", "react-dom", "@tanstack/react-router", "@tanstack/react-start"],
+  tanstackStart: {
+    server: { entry: "server" },
   },
 });
