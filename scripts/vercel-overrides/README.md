@@ -77,3 +77,23 @@ Script ini auto-merge `main` → `vercel-ssr` dan **menghapus** file
 
 - Jangan edit `vite.config.ts`, `wrangler.jsonc`, `src/server.ts`, atau `vercel.json` lewat chat Lovable. File-file ini adalah "wilayah override" — biarkan Lovable mengelolanya di `main`, dan branch script yang menyelesaikannya di `vercel-ssr`.
 - Jangan pernah membuat `vercel.json` baru — preset menangani semuanya.
+
+## Troubleshooting: masih 404 NOT_FOUND di Vercel
+
+Jika `infokholwat2026.vercel.app` masih balas 404 setelah deploy, cek
+berurutan (penyebab paling sering di atas):
+
+1. **Production Branch di Vercel**: dashboard → Project → Settings → Git →
+   Production Branch harus `vercel-ssr`, BUKAN `main`. Kalau masih `main`,
+   Vercel mem-build `main` yang pakai preset Cloudflare → output `.vercel/output` tidak ada → 404 semua route.
+2. **Branch `vercel-ssr` ketinggalan**: jalankan `./scripts/sync-to-vercel.sh`
+   lalu pastikan `git log origin/vercel-ssr -1` menunjukkan commit terbaru.
+3. **`vite.config.ts` di `vercel-ssr` salah**: harus persis isi
+   `scripts/vercel-overrides/vite.config.ts` (preset
+   `tanstackStart({ target: "vercel" })`, tanpa `@cloudflare/vite-plugin`).
+4. **Output Directory di Vercel**: harus **kosong** (auto-detect). Kalau
+   diisi `dist`, `dist/client`, atau apa pun → 404.
+5. **Framework Preset**: set ke **Other** (bukan Vite, bukan Next).
+6. **Build log Vercel**: cari baris `.vercel/output/config.json`. Kalau tidak
+   ada, berarti preset Vercel tidak jalan — kembali ke poin 3.
+
