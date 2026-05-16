@@ -1,8 +1,20 @@
-# Setup branch `vercel-ssr` (sekali saja)
+# Setup Vercel tanpa 404 / routing issue
 
-Tujuan: deploy ke Vercel **tanpa 404 / routing issue**, tanpa merusak preview Lovable di branch `main`.
+> Update terbaru: `vite.config.ts` di branch `main` sekarang **otomatis** mendeteksi build Vercel lewat env `VERCEL=1` dan beralih ke `tanstackStart({ target: "vercel" })` saat deploy di Vercel. Jadi untuk kebanyakan kasus, **tidak perlu lagi branch `vercel-ssr`** hanya untuk memperbaiki routing/404.
 
-## Kenapa harus branch terpisah?
+Tujuan: deploy ke Vercel **tanpa 404 / routing issue**, sambil tetap menjaga preview Lovable tetap normal.
+
+## Rekomendasi sekarang
+
+- Deploy langsung dari branch aktif yang berisi fix terbaru.
+- Pastikan di Vercel tidak ada `vercel.json`, `outputDirectory`, atau rewrite manual.
+- Build Command cukup default: `npm run build`.
+
+## Opsi lama: branch `vercel-ssr`
+
+Panduan branch terpisah di bawah ini tetap bisa dipakai jika Anda memang ingin memisahkan workflow Vercel, tetapi **sudah tidak wajib**.
+
+## Kenapa dulu dipakai branch terpisah?
 
 - `main` wajib pakai `@lovable.dev/vite-tanstack-config` (Cloudflare-based) supaya preview Lovable & chat-edit jalan.
 - Vercel butuh preset berbeda (`tanstackStart({ target: 'vercel' })`) tanpa Cloudflare plugin.
