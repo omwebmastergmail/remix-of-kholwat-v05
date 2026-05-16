@@ -4,17 +4,21 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 function useCountdown(target: Date) {
-  const [now, setNow] = useState(() => new Date());
+  // SSR-safe: render zeros on server + first client render, then start ticking
+  // after mount to avoid hydration mismatch.
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
+    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
+  if (!now) return { d: 0, h: 0, m: 0, s: 0, ready: false };
   const diff = Math.max(0, target.getTime() - now.getTime());
   const d = Math.floor(diff / 86400000);
   const h = Math.floor((diff % 86400000) / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
-  return { d, h, m, s };
+  return { d, h, m, s, ready: true };
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
