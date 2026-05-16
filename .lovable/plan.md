@@ -1,84 +1,34 @@
 ## Tujuan
+Menghilangkan dua issue terpisah yang terlihat dari screenshot dan runtime signal:
+1. Preview/app mengalami hydration mismatch.
+2. Deploy Vercel mengembalikan 404 NOT_FOUND di level platform.
 
-Membuat halaman `/admin` (tetap terpisah dari halaman publik) menjadi panel manajemen lengkap dengan 5 tab — **Donasi · Seksi · Transaksi · Grafik · Masuk** — yang setara dengan UI referensi `infohbhmdti.my.id`. Halaman publik di `/` tidak diubah pada plan ini.
+## Rencana
 
-## Layout Halaman Admin
+### 1) Perbaiki hydration mismatch di halaman utama
+- Ubah countdown di `src/components/SuratEdaranTab.tsx` agar tidak merender waktu live yang berbeda antara SSR dan client.
+- Pakai pola hydration-safe: render nilai awal yang stabil saat SSR, lalu mulai ticking setelah client mount.
+- Pastikan tidak ada perbedaan angka awal seperti `52` vs `14` saat hydrate.
 
-```text
-┌──────────────────────────────────────────────┐
-│  Header (sama, + tombol Print All & Keluar)  │
-├──────────────────────────────────────────────┤
-│  StatsCards: TARGET DONASI │ REALISASI       │
-├──────────────────────────────────────────────┤
-│  Tabs: Donasi │ Seksi │ Transaksi │ Grafik │ Masuk │
-└──────────────────────────────────────────────┘
-```
+### 2) Audit dan koreksi bootstrap error handling router
+- Tinjau `src/router.tsx` dan tambahkan fallback error boundary router-wide bila perlu, supaya error runtime tidak berujung blank/regen tanpa fallback yang rapi.
+- Tetap biarkan generated route tree tidak disentuh.
 
-## Fase 1 — Skema Database & Storage
+### 3) Finalisasi konfigurasi branch/deploy Vercel
+- Verifikasi ulang override branch `vercel-ssr` supaya hanya memakai preset Vercel TanStack Start.
+- Pastikan tidak ada konfigurasi yang memaksa output salah atau mengandalkan file yang tidak diproduksi preset.
+- Rapikan dokumentasi override agar alur sync `main -> vercel-ssr` konsisten dan tidak reintroduce config yang memicu 404.
 
-Tambah kolom & tabel baru (lewat migration):
+### 4) Validasi hasil
+- Verifikasi preview tidak lagi memunculkan hydration mismatch.
+- Verifikasi route utama app normal di preview.
+- Konfirmasi checklist deploy Vercel: branch, build command, dan output autodetect sesuai preset.
 
-- `transaksi`:
-  - `donor_nama TEXT` (untuk donasi masuk individual)
-  - `kode TEXT` (kode unik donasi, mis. `SUNDCL6`)
-  - `status` ENUM `('pending','diterima','ditolak')` default `diterima`
-  - `bukti_bayar_url TEXT` (path file di storage)
-- Storage bucket `bukti-bayar` (public read), RLS upload hanya admin
-- RLS update/delete `transaksi` sudah admin-only — tetap
-
-## Fase 2 — Tab Donasi & Tab Masuk
-
-**Tab Donasi (Sumber Dana)**
-- Card "Sumber Dana Donasi" dengan tombol header **Excel · PDF · Tambah**
-- Search bar
-- Tabel: No · Sumber Donasi · Nominal (sortable) · **Aksi (edit/hapus)**
-- Tombol "Tampilkan lagi (N sisa)" untuk paginate, baris **Total** di bawah
-
-**Tab Masuk (Donasi Masuk per donatur)**
-- Tabel: Tanggal · Nama · Nominal · **Status badge** (Diterima/Pending/Ditolak warna hijau/abu/merah) · Aksi expand
-- Row expand: Kode, Nama, Sumber, Nominal, Tanggal, Status, **thumbnail Bukti Bayar**
-- Form Tambah: nama donatur, sumber, nominal, tanggal, upload bukti bayar, status
-
-## Fase 3 — Tab Transaksi
-
-- Card header dengan tombol **Excel · PDF · Tambah**
-- 3 stat card berwarna: **MASUK (hijau) · KELUAR (merah) · SALDO (biru)**
-- Search + tombol Filter (filter by tipe/seksi/sumber/tanggal)
-- List item dengan nomor bulat, judul keterangan UPPERCASE, tanggal · seksi/sumber, **thumbnail bukti**, edit (hijau), hapus (merah), nominal warna (+hijau/-merah)
-- Pagination "Rows: 10 · 1-10 / N"
-
-## Fase 4 — Tab Seksi & Tab Grafik
-
-**Tab Seksi**
-- Card header dengan ringkasan: Anggaran · Dana Masuk · Realisasi
-- Tombol PDF · Filter
-- Tabel: No · Nama Seksi (expand) · Anggaran · Realisasi (+/- selisih) · % (warna hijau ≤100, kuning, merah >100) · edit
-- Expand row → list rincian transaksi seksi tsb (keterangan, tanggal, nominal merah)
-- Progress bar warna sesuai % di bawah nama seksi
-- Baris **Total** di bawah
-
-**Tab Grafik** (pakai recharts)
-- Donut **Dana Masuk vs Keluar** + label Saldo
-- Donut **Pengeluaran per Seksi** dengan legend persentase
-- Donut **Proporsi Donasi per Sumber** dengan legend scrollable + nominal
-- Tombol Print PDF
-
-## Detail Teknis
-
-- Komponen baru di `src/components/admin/`: `AdminDonasi.tsx`, `AdminMasuk.tsx`, `AdminTransaksi.tsx`, `AdminSeksi.tsx`, `AdminGrafik.tsx`, plus dialog form (`TransaksiDialog`, `SumberDialog`, `MasukDialog`).
-- Reuse `Tabs`, `Table`, `Dialog`, `Badge`, `Progress` dari shadcn.
-- Export Excel: `xlsx` (sudah ada deps? cek). Export PDF: `jspdf` + `jspdf-autotable`. Print All: `window.print()` dengan CSS print.
-- Upload bukti bayar via `supabase.storage.from('bukti-bayar').upload(...)`.
-- Query data via TanStack Query, invalidate setelah mutate.
-- Filter & pagination pakai state lokal + `useMemo`.
-- Halaman `/` (publik) tidak dimodifikasi — admin punya UI sendiri di `/admin`.
-
-## Eksekusi Bertahap
-
-Setelah plan disetujui, saya kerjakan **Fase 1 dulu** (migration + storage), tunggu approval migration, baru lanjut Fase 2 → 3 → 4 dalam pesan terpisah agar tiap tahap bisa dicek.
-
-## Yang Perlu Dipastikan
-
-- OK menambah kolom `donor_nama`, `kode`, `status`, `bukti_bayar_url` ke `transaksi`?
-- OK membuat storage bucket public `bukti-bayar` untuk thumbnail bukti?
-- Ada preferensi library export (xlsx + jspdf) atau cukup CSV + window.print?
+## Detail teknis
+- File utama yang kemungkinan diubah:
+  - `src/components/SuratEdaranTab.tsx`
+  - `src/router.tsx`
+  - `scripts/vercel-overrides/README.md` (jika perlu sinkronisasi instruksi)
+  - berkas override/deploy terkait hanya jika memang masih konflik
+- Tidak akan mengubah `src/routeTree.gen.ts` karena file generated.
+- Fokus hanya pada akar issue yang terlihat: mismatch SSR/client dan konfigurasi deploy Vercel.
